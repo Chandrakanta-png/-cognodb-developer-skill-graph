@@ -1,0 +1,19 @@
+Subject: CognoDB Assignment 2 – Chandrakanta Baligar
+
+Hi Wexa AI Team,
+
+Please find my CognoDB take-home assignment below.
+
+GitHub Repository:
+<YOUR_GITHUB_REPOSITORY_URL>
+
+Hosted Demo:
+<YOUR_HOSTED_DEMO_URL>
+
+Screen Recording:
+<YOUR_SCREEN_RECORDING_URL>
+
+The application is a Developer Skill & Career Graph built using React, Django REST Framework, the official Neo4j Python driver and CognoDB.
+
+Best regards,
+Chandrakanta Baligar

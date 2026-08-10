@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Developer Skill & Career Graph
 
 Full-stack CognoDB take-home project for WEXA AI.
@@ -107,3 +108,6 @@ See `docs/DEPLOYMENT.md`.
 See `docs/SCREEN_RECORDING_SCRIPT.md`.
 
 Replace the demo URL and screenshots after deployment.
+=======
+# -cognodb-developer-skill-graph
+>>>>>>> 77604d5e51ab7ca8934b5562cfbb81d414ab41bb

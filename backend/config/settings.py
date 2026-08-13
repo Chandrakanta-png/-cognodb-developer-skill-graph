@@ -13,10 +13,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ============================================================
 # ENVIRONMENT VARIABLES
-# .env is located one level above backend/
+# Each service owns its own .env file. The project-root .env remains a
+# backwards-compatible fallback for existing local setups.
 # ============================================================
 
-load_dotenv(BASE_DIR.parent / ".env")
+load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR.parent / ".env", override=False)
 
 
 # ============================================================
@@ -60,6 +62,7 @@ INSTALLED_APPS = [
 
     # Local
     "graph",
+    "accounts.apps.AccountsConfig",
 ]
 
 
@@ -160,6 +163,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ============================================================
 
 REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework_simplejwt.authentication.JWTAuthentication"],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",

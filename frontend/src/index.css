@@ -218,3 +218,28 @@ body {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
 }
+
+.nav-logout, .nav-cta { border: 0; font: inherit; cursor: pointer; }
+.nav-logout { background: transparent; color: #555; padding: 0; }
+.nav-cta { background: #7746f4; color: #fff !important; border-radius: 8px; padding: 8px 12px; }
+.auth-page, .profile-page { min-height: calc(100vh - 70px); padding: 48px 20px; background: linear-gradient(135deg, #f1ecff, #fff0f4); }
+.auth-card, .profile-card { max-width: 520px; margin: 0 auto; padding: 36px; border: 1px solid #e7e7ed; border-radius: 20px; background: #fff; box-shadow: 0 18px 50px rgba(53, 35, 105, .1); }
+.auth-brand { color: #7746f4; font-weight: 800; font-size: 20px; }
+.auth-card h1, .profile-card h1 { margin: 22px 0 8px; color: #171923; }
+.auth-card > p, .profile-heading p { color: #667085; }
+.auth-form, .profile-grid { display: grid; gap: 16px; margin-top: 26px; }
+.auth-form label, .profile-grid label { display: grid; gap: 7px; color: #344054; font-size: 13px; font-weight: 700; }
+.auth-form input, .profile-grid input, .profile-grid textarea { width: 100%; border: 1px solid #d9dbe7; border-radius: 9px; padding: 11px 12px; font: inherit; outline-color: #7746f4; }
+.profile-grid textarea { min-height: 100px; resize: vertical; }
+.auth-form button, .profile-heading button { border: 0; border-radius: 9px; padding: 12px; background: #7746f4; color: white; font-weight: 700; cursor: pointer; }
+.auth-form button:disabled, .profile-heading button:disabled { opacity: .65; cursor: wait; }
+.two-fields, .profile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.two-fields { display: grid; gap: 12px; }
+.full-field { grid-column: 1 / -1; }
+.profile-card { max-width: 960px; }
+.profile-heading { display: flex; align-items: start; justify-content: space-between; gap: 24px; }
+.profile-heading h1 { margin: 5px 0; }
+.profile-heading button { min-width: 120px; }
+.profile-grid label span { color: #98a2b3; font-size: 11px; font-weight: 500; }
+.form-error, .form-success { margin: 0; border-radius: 8px; padding: 11px; font-size: 13px; }.form-error { color: #b42318; background: #fef3f2; }.form-success { color: #027a48; background: #ecfdf3; }.auth-switch { text-align: center; margin-top: 20px; font-size: 13px; }.auth-switch a { color: #7746f4; font-weight: 700; }
+@media (max-width: 640px) { .two-fields, .profile-grid { grid-template-columns: 1fr; }.profile-heading { flex-direction: column; }.profile-heading button { width: 100%; }.auth-card, .profile-card { padding: 26px 20px; } }

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Developer Skill & Career Graph
 
 Full-stack CognoDB take-home project for WEXA AI.
@@ -28,6 +27,9 @@ React + Vite | Django REST Framework | official Neo4j Python driver | CognoDB | 
 ```text
 backend/
   config/
+  cypher/
+    schema.cypher
+    queries.cypher
   graph/
     management/commands/seed_graph.py
     services/cognodb.py
@@ -39,7 +41,6 @@ frontend/
     components/
     pages/
     services/
-cypher/
 docs/
 docker/
 Dockerfile
@@ -48,8 +49,12 @@ docker-compose.yml
 
 ## Setup
 
-Create a CognoDB instance and copy its Bolt URI and password to `.env`.
+Create separate environment files for each application:
 
+Copy `backend/.env.example` to `backend/.env` and `frontend/.env.example` to
+`frontend/.env`, then replace the placeholder values.
+
+`backend/.env`
 ```env
 COGNODB_URI=bolt+s://<instance-id>.databases.cognodb.cloud
 COGNODB_USER=cognodb
@@ -57,6 +62,11 @@ COGNODB_PASSWORD=<password>
 DJANGO_SECRET_KEY=change-me
 DJANGO_DEBUG=True
 CORS_ALLOWED_ORIGINS=http://localhost:5173
+```
+
+`frontend/.env`
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000/api
 ```
 
 Backend:
@@ -77,9 +87,10 @@ npm install
 npm run dev
 ```
 
-Set `frontend/.env`:
-```env
-VITE_API_URL=http://127.0.0.1:8000/api
+
+Docker (runs the API at `http://localhost:8000` and the web app at `http://localhost:5173`):
+```bash
+docker compose up --build
 ```
 
 ## API
@@ -97,7 +108,7 @@ VITE_API_URL=http://127.0.0.1:8000/api
 - Parameterized Cypher.
 - Multi-hop traversal: Developer -> Skill -> Project -> Skill.
 - Graph-native recommendation: developers sharing skills.
-- Relationship path query in `cypher/queries.cypher`.
+- Relationship path query in `backend/cypher/queries.cypher`.
 - Graceful CognoDB connection errors.
 - Secrets read only from environment variables.
 
@@ -108,6 +119,3 @@ See `docs/DEPLOYMENT.md`.
 See `docs/SCREEN_RECORDING_SCRIPT.md`.
 
 Replace the demo URL and screenshots after deployment.
-=======
-# -cognodb-developer-skill-graph
->>>>>>> 77604d5e51ab7ca8934b5562cfbb81d414ab41bb

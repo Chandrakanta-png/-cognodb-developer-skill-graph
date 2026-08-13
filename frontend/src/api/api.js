@@ -12,6 +12,16 @@ const api = axios.create({
   timeout: 10000,
 });
 
+api.interceptors.request.use((config) => {
+  const accessToken = localStorage.getItem("skillgraph_access_token");
+
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  return config;
+});
+
 export const healthCheck = async () => {
   const response = await api.get("/health/");
   return response.data;
@@ -34,6 +44,31 @@ export const getSkills = async () => {
 
 export const getProjects = async () => {
   const response = await api.get("/projects/");
+  return response.data;
+};
+
+export const register = async (payload) => {
+  const response = await api.post("/auth/register/", payload);
+  return response.data;
+};
+
+export const login = async (email, password) => {
+  const response = await api.post("/auth/login/", { email, password });
+  return response.data;
+};
+
+export const getCurrentUser = async () => {
+  const response = await api.get("/auth/me/");
+  return response.data;
+};
+
+export const updateCurrentUser = async (payload) => {
+  const response = await api.patch("/auth/me/", payload);
+  return response.data;
+};
+
+export const updateProfile = async (payload) => {
+  const response = await api.patch("/auth/profile/", payload);
   return response.data;
 };
 

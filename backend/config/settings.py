@@ -13,10 +13,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ============================================================
 # ENVIRONMENT VARIABLES
-# .env is located one level above backend/
+# Each service owns its own .env file. The project-root .env remains a
+# backwards-compatible fallback for existing local setups.
 # ============================================================
 
-load_dotenv(BASE_DIR.parent / ".env")
+load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR.parent / ".env", override=False)
 
 
 # ============================================================
@@ -34,14 +36,23 @@ DEBUG = os.getenv(
 ).lower() == "true"
 
 
+# ALLOWED_HOSTS = [
+#     host.strip()
+#     for host in os.getenv(
+#         "DJANGO_ALLOWED_HOSTS",
+#         "localhost,127.0.0.1",
+#     ).split(",")
+#     if host.strip()
+# ]
 ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv(
-        "DJANGO_ALLOWED_HOSTS",
-        "localhost,127.0.0.1",
-    ).split(",")
-    if host.strip()
+    "127.0.0.1",
+    "localhost",
 ]
+
+# For AWS Elastic Beanstalk: trust X-Forwarded-Host header from load balancer
+if os.getenv("AWS_EB_ENVIRONMENT"):
+    USE_X_FORWARDED_HOST = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # ============================================================
@@ -60,6 +71,7 @@ INSTALLED_APPS = [
 
     # Local
     "graph",
+    "accounts.apps.AccountsConfig",
 ]
 
 
@@ -69,6 +81,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
+    "config.middleware.AllowInternalIPsMiddleware",
     "django.middleware.common.CommonMiddleware",
 ]
 
@@ -160,6 +173,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ============================================================
 
 REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework_simplejwt.authentication.JWTAuthentication"],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
@@ -175,7 +190,7 @@ CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         "CORS_ALLOWED_ORIGINS",
-        "http://localhost:5173",
+        "http://localhost:5173,http://127.0.0.1:5173",
     ).split(",")
     if origin.strip()
 ]

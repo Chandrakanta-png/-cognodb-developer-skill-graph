@@ -1,2 +1,0 @@
-import ForceGraph2D from "react-force-graph-2d";
-export default function GraphView({data}){if(!data?.nodes?.length)return <div className="empty">No graph data.</div>;return <div className="graph"><ForceGraph2D graphData={data} nodeLabel={n=>`${n.type}: ${n.label}`} linkLabel={l=>l.relationship} nodeAutoColorBy="type" linkDirectionalArrowLength={5} linkDirectionalArrowRelPos={1}/></div>}

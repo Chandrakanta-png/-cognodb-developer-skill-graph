@@ -36,14 +36,23 @@ DEBUG = os.getenv(
 ).lower() == "true"
 
 
+# ALLOWED_HOSTS = [
+#     host.strip()
+#     for host in os.getenv(
+#         "DJANGO_ALLOWED_HOSTS",
+#         "localhost,127.0.0.1",
+#     ).split(",")
+#     if host.strip()
+# ]
 ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv(
-        "DJANGO_ALLOWED_HOSTS",
-        "localhost,127.0.0.1",
-    ).split(",")
-    if host.strip()
+    "127.0.0.1",
+    "localhost",
 ]
+
+# For AWS Elastic Beanstalk: trust X-Forwarded-Host header from load balancer
+if os.getenv("AWS_EB_ENVIRONMENT"):
+    USE_X_FORWARDED_HOST = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # ============================================================
@@ -72,6 +81,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
+    "config.middleware.AllowInternalIPsMiddleware",
     "django.middleware.common.CommonMiddleware",
 ]
 

@@ -26,19 +26,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Check backend files
-        run: |
-          echo "Repository:"
-          pwd
-          echo "Root files:"
-          ls -la
-          echo "Backend files:"
-          ls -la backend
-          echo "Requirements:"
-          ls -la backend/requirements.txt
-          echo "Manage:"
-          ls -la backend/manage.py
-
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
@@ -50,8 +37,12 @@ jobs:
           python -m pip install -r backend/requirements.txt
 
       - name: Django check
+        working-directory: backend
+        env:
+          COGNODB_URI: ${{ secrets.COGNODB_URI }}
+          COGNODB_USER: ${{ secrets.COGNODB_USER }}
+          COGNODB_PASSWORD: ${{ secrets.COGNODB_PASSWORD }}
         run: |
-          cd backend
           python manage.py check
 
       - name: Configure AWS credentials

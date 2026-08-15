@@ -184,3 +184,295 @@ def recommendations(request, developer_id):
         )
 
     return Response(result)
+
+
+# ============================================================
+# CRUD - DEVELOPERS
+# ============================================================
+
+@api_view(["POST"])
+def create_developer(request):
+    """Create a new developer"""
+    try:
+        data = request.data
+        required_fields = ['id', 'name', 'email', 'title', 'location', 'experience', 'bio']
+        
+        if not all(field in data for field in required_fields):
+            return Response(
+                {"error": f"Missing required fields: {required_fields}"},
+                status=400
+            )
+        
+        result, error = call(queries.create_developer, data)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response(result[0] if result else {}, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["PUT"])
+def update_developer(request, developer_id):
+    """Update a developer"""
+    try:
+        data = request.data
+        result, error = call(queries.update_developer, developer_id, data)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response(result[0] if result else {})
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["DELETE"])
+def delete_developer(request, developer_id):
+    """Delete a developer"""
+    try:
+        result, error = call(queries.delete_developer, developer_id)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response({"status": "deleted"}, status=204)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["POST"])
+def developer_add_skill(request, developer_id):
+    """Add a skill to a developer"""
+    try:
+        skill_id = request.data.get('skill_id')
+        if not skill_id:
+            return Response({"error": "skill_id is required"}, status=400)
+        
+        result, error = call(queries.add_developer_skill, developer_id, skill_id)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response(result[0] if result else {}, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["DELETE"])
+def developer_remove_skill(request, developer_id, skill_id):
+    """Remove a skill from a developer"""
+    try:
+        result, error = call(queries.remove_developer_skill, developer_id, skill_id)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response({"status": "deleted"}, status=204)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["POST"])
+def developer_add_project(request, developer_id):
+    """Add a project to a developer"""
+    try:
+        project_id = request.data.get('project_id')
+        if not project_id:
+            return Response({"error": "project_id is required"}, status=400)
+        
+        result, error = call(queries.add_developer_project, developer_id, project_id)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response(result[0] if result else {}, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["DELETE"])
+def developer_remove_project(request, developer_id, project_id):
+    """Remove a project from a developer"""
+    try:
+        result, error = call(queries.remove_developer_project, developer_id, project_id)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response({"status": "deleted"}, status=204)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+# ============================================================
+# CRUD - SKILLS
+# ============================================================
+
+@api_view(["POST"])
+def create_skill(request):
+    """Create a new skill"""
+    try:
+        data = request.data
+        required_fields = ['id', 'name']
+        
+        if not all(field in data for field in required_fields):
+            return Response(
+                {"error": f"Missing required fields: {required_fields}"},
+                status=400
+            )
+        
+        result, error = call(queries.create_skill, data)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response(result[0] if result else {}, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["GET"])
+def skill_detail(request, skill_id):
+    """Get skill detail with related developers and projects"""
+    try:
+        result, error = call(queries.skill_detail, skill_id)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response(result[0] if result else {})
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["PUT"])
+def update_skill(request, skill_id):
+    """Update a skill"""
+    try:
+        data = request.data
+        result, error = call(queries.update_skill, skill_id, data)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response(result[0] if result else {})
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["DELETE"])
+def delete_skill(request, skill_id):
+    """Delete a skill"""
+    try:
+        result, error = call(queries.delete_skill, skill_id)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response({"status": "deleted"}, status=204)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+# ============================================================
+# CRUD - PROJECTS
+# ============================================================
+
+@api_view(["POST"])
+def create_project(request):
+    """Create a new project"""
+    try:
+        data = request.data
+        required_fields = ['id', 'name', 'description', 'technology']
+        
+        if not all(field in data for field in required_fields):
+            return Response(
+                {"error": f"Missing required fields: {required_fields}"},
+                status=400
+            )
+        
+        result, error = call(queries.create_project, data)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response(result[0] if result else {}, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["GET"])
+def project_detail(request, project_id):
+    """Get project detail with related developers and skills"""
+    try:
+        result, error = call(queries.project_detail, project_id)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response(result[0] if result else {})
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["PUT"])
+def update_project(request, project_id):
+    """Update a project"""
+    try:
+        data = request.data
+        result, error = call(queries.update_project, project_id, data)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response(result[0] if result else {})
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["DELETE"])
+def delete_project(request, project_id):
+    """Delete a project"""
+    try:
+        result, error = call(queries.delete_project, project_id)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response({"status": "deleted"}, status=204)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["POST"])
+def project_add_skill(request, project_id):
+    """Add a skill to a project"""
+    try:
+        skill_id = request.data.get('skill_id')
+        if not skill_id:
+            return Response({"error": "skill_id is required"}, status=400)
+        
+        result, error = call(queries.add_project_skill, project_id, skill_id)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response(result[0] if result else {}, status=201)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["DELETE"])
+def project_remove_skill(request, project_id, skill_id):
+    """Remove a skill from a project"""
+    try:
+        result, error = call(queries.remove_project_skill, project_id, skill_id)
+        
+        if error:
+            return Response({"error": error}, status=400)
+        
+        return Response({"status": "deleted"}, status=204)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)

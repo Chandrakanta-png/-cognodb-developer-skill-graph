@@ -286,41 +286,314 @@ def developer_edges(developer_id):
 # RECOMMENDATIONS
 # ============================================================
 
-def recommendations(developer_id):
-    """
-    Recommend developers who share skills with the
-    requested developer.
-    """
-
-    query = """
-    MATCH (d:Developer)
-    WHERE d.id = $developer_id
-
-    MATCH (d)-[:HAS_SKILL]->(s:Skill)<-[:HAS_SKILL]-(other:Developer)
-
-    WHERE other.id <> d.id
-
-    WITH
-        other,
-        collect(DISTINCT s.name) AS shared_skills,
-        count(DISTINCT s) AS score
-
-    RETURN
-        other.id AS id,
-        other.name AS name,
-        other.email AS email,
-        other.title AS title,
-        other.location AS location,
-        shared_skills,
-        score
-
-    ORDER BY score DESC, name
-    LIMIT 10
-    """
-
     return graph_db.execute(
         query,
         {
             "developer_id": developer_id
         }
     )
+
+
+# ============================================================
+# CRUD - DEVELOPERS
+# ============================================================
+
+def create_developer(developer_data):
+    """
+    Create a new developer.
+    """
+    query = """
+    MERGE (d:Developer {
+        id: $id,
+        name: $name,
+        email: $email,
+        title: $title,
+        location: $location,
+        experience: $experience,
+        bio: $bio
+    })
+    RETURN d.id AS id, d.name AS name, d.email AS email
+    """
+    
+    return graph_db.execute(query, developer_data)
+
+
+def update_developer(developer_id, developer_data):
+    """
+    Update an existing developer.
+    """
+    query = """
+    MATCH (d:Developer {id: $id})
+    SET
+        d.name = $name,
+        d.email = $email,
+        d.title = $title,
+        d.location = $location,
+        d.experience = $experience,
+        d.bio = $bio
+    RETURN d.id AS id, d.name AS name
+    """
+    
+    developer_data['id'] = developer_id
+    return graph_db.execute(query, developer_data)
+
+
+def delete_developer(developer_id):
+    """
+    Delete a developer and all relationships.
+    """
+    query = """
+    MATCH (d:Developer {id: $developer_id})
+    DETACH DELETE d
+    RETURN "deleted" AS status
+    """
+    
+    return graph_db.execute(query, {"developer_id": developer_id})
+
+
+def add_developer_skill(developer_id, skill_id):
+    """
+    Add a skill to a developer.
+    """
+    query = """
+    MATCH (d:Developer {id: $developer_id})
+    MATCH (s:Skill {id: $skill_id})
+    MERGE (d)-[:HAS_SKILL]->(s)
+    RETURN d.id AS developer_id, s.id AS skill_id
+    """
+    
+    return graph_db.execute(query, {
+        "developer_id": developer_id,
+        "skill_id": skill_id
+    })
+
+
+def remove_developer_skill(developer_id, skill_id):
+    """
+    Remove a skill from a developer.
+    """
+    query = """
+    MATCH (d:Developer {id: $developer_id})-[r:HAS_SKILL]->(s:Skill {id: $skill_id})
+    DELETE r
+    RETURN "deleted" AS status
+    """
+    
+    return graph_db.execute(query, {
+        "developer_id": developer_id,
+        "skill_id": skill_id
+    })
+
+
+def add_developer_project(developer_id, project_id):
+    """
+    Add a project to a developer.
+    """
+    query = """
+    MATCH (d:Developer {id: $developer_id})
+    MATCH (p:Project {id: $project_id})
+    MERGE (d)-[:WORKED_ON]->(p)
+    RETURN d.id AS developer_id, p.id AS project_id
+    """
+    
+    return graph_db.execute(query, {
+        "developer_id": developer_id,
+        "project_id": project_id
+    })
+
+
+def remove_developer_project(developer_id, project_id):
+    """
+    Remove a project from a developer.
+    """
+    query = """
+    MATCH (d:Developer {id: $developer_id})-[r:WORKED_ON]->(p:Project {id: $project_id})
+    DELETE r
+    RETURN "deleted" AS status
+    """
+    
+    return graph_db.execute(query, {
+        "developer_id": developer_id,
+        "project_id": project_id
+    })
+
+
+# ============================================================
+# CRUD - SKILLS
+# ============================================================
+
+def create_skill(skill_data):
+    """
+    Create a new skill.
+    """
+    query = """
+    MERGE (s:Skill {
+        id: $id,
+        name: $name
+    })
+    RETURN s.id AS id, s.name AS name
+    """
+    
+    return graph_db.execute(query, skill_data)
+
+
+def update_skill(skill_id, skill_data):
+    """
+    Update an existing skill.
+    """
+    query = """
+    MATCH (s:Skill {id: $id})
+    SET s.name = $name
+    RETURN s.id AS id, s.name AS name
+    """
+    
+    skill_data['id'] = skill_id
+    return graph_db.execute(query, skill_data)
+
+
+def delete_skill(skill_id):
+    """
+    Delete a skill and all relationships.
+    """
+    query = """
+    MATCH (s:Skill {id: $skill_id})
+    DETACH DELETE s
+    RETURN "deleted" AS status
+    """
+    
+    return graph_db.execute(query, {"skill_id": skill_id})
+
+
+def skill_detail(skill_id):
+    """
+    Return skill information with related developers and projects.
+    """
+    query = """
+    MATCH (s:Skill {id: $skill_id})
+    OPTIONAL MATCH (d:Developer)-[:HAS_SKILL]->(s)
+    OPTIONAL MATCH (p:Project)-[:USES_SKILL]->(s)
+    
+    RETURN
+        s.id AS id,
+        s.name AS name,
+        collect(DISTINCT {
+            id: d.id,
+            name: d.name
+        }) AS developers,
+        collect(DISTINCT {
+            id: p.id,
+            name: p.name
+        }) AS projects
+    """
+    
+    return graph_db.execute(query, {"skill_id": skill_id})
+
+
+# ============================================================
+# CRUD - PROJECTS
+# ============================================================
+
+def create_project(project_data):
+    """
+    Create a new project.
+    """
+    query = """
+    MERGE (p:Project {
+        id: $id,
+        name: $name,
+        description: $description,
+        technology: $technology
+    })
+    RETURN p.id AS id, p.name AS name
+    """
+    
+    return graph_db.execute(query, project_data)
+
+
+def update_project(project_id, project_data):
+    """
+    Update an existing project.
+    """
+    query = """
+    MATCH (p:Project {id: $id})
+    SET
+        p.name = $name,
+        p.description = $description,
+        p.technology = $technology
+    RETURN p.id AS id, p.name AS name
+    """
+    
+    project_data['id'] = project_id
+    return graph_db.execute(query, project_data)
+
+
+def delete_project(project_id):
+    """
+    Delete a project and all relationships.
+    """
+    query = """
+    MATCH (p:Project {id: $project_id})
+    DETACH DELETE p
+    RETURN "deleted" AS status
+    """
+    
+    return graph_db.execute(query, {"project_id": project_id})
+
+
+def project_detail(project_id):
+    """
+    Return project information with related developers and skills.
+    """
+    query = """
+    MATCH (p:Project {id: $project_id})
+    OPTIONAL MATCH (d:Developer)-[:WORKED_ON]->(p)
+    OPTIONAL MATCH (p)-[:USES_SKILL]->(s:Skill)
+    
+    RETURN
+        p.id AS id,
+        p.name AS name,
+        p.description AS description,
+        p.technology AS technology,
+        collect(DISTINCT {
+            id: d.id,
+            name: d.name
+        }) AS developers,
+        collect(DISTINCT {
+            id: s.id,
+            name: s.name
+        }) AS skills
+    """
+    
+    return graph_db.execute(query, {"project_id": project_id})
+
+
+def add_project_skill(project_id, skill_id):
+    """
+    Add a skill to a project.
+    """
+    query = """
+    MATCH (p:Project {id: $project_id})
+    MATCH (s:Skill {id: $skill_id})
+    MERGE (p)-[:USES_SKILL]->(s)
+    RETURN p.id AS project_id, s.id AS skill_id
+    """
+    
+    return graph_db.execute(query, {
+        "project_id": project_id,
+        "skill_id": skill_id
+    })
+
+
+def remove_project_skill(project_id, skill_id):
+    """
+    Remove a skill from a project.
+    """
+    query = """
+    MATCH (p:Project {id: $project_id})-[r:USES_SKILL]->(s:Skill {id: $skill_id})
+    DELETE r
+    RETURN "deleted" AS status
+    """
+    
+    return graph_db.execute(query, {
+        "project_id": project_id,
+        "skill_id": skill_id
+    })

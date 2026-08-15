@@ -94,20 +94,29 @@
 
 
 import React, { useEffect, useState } from "react";
-import { healthCheck } from "../api/api";
+import { getDevelopers, getProjects, getSkills, healthCheck } from "../api/api";
 
 function Dashboard() {
   const [status, setStatus] = useState("Checking...");
   const [error, setError] = useState("");
+  const [developers, setDevelopers] = useState([]);
+  const [skills, setSkills] = useState([]);
+  const [projects, setProjects] = useState([]);
 
   useEffect(() => {
     const checkBackend = async () => {
       try {
-        const data = await healthCheck();
+        const [health, developerData, skillData, projectData] = await Promise.all([
+          healthCheck(),
+          getDevelopers(),
+          getSkills(),
+          getProjects(),
+        ]);
 
-        console.log("Backend response:", data);
-
-        setStatus("Backend Connected");
+        setStatus(health.status === "ok" ? "Backend Connected" : "Backend Offline");
+        setDevelopers(Array.isArray(developerData) ? developerData : []);
+        setSkills(Array.isArray(skillData) ? skillData : []);
+        setProjects(Array.isArray(projectData) ? projectData : []);
         setError("");
       } catch (error) {
         console.error(error);
@@ -121,6 +130,14 @@ function Dashboard() {
   }, []);
 
   const connected = status === "Backend Connected";
+  const topSkills = [...skills]
+    .sort((a, b) => (b.developer_count || 0) - (a.developer_count || 0))
+    .slice(0, 5);
+  const maxSkillCount = Math.max(...topSkills.map((skill) => skill.developer_count || 0), 1);
+  const relationshipCount = skills.reduce(
+    (total, skill) => total + (skill.developer_count || 0),
+    0,
+  );
 
   return (
     <div className="min-h-screen bg-[#f7f8fc] text-slate-900">

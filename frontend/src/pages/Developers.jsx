@@ -91,8 +91,7 @@
 // export default Developers;
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-
-const API_URL = "http://127.0.0.1:8000/api";
+import { getDevelopers } from "../api/api";
 
 function Developers() {
   const [developers, setDevelopers] = useState([]);
@@ -106,13 +105,7 @@ function Developers() {
         setLoading(true);
         setError("");
 
-        const response = await fetch(`${API_URL}/developers/`);
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch developers");
-        }
-
-        const data = await response.json();
+        const data = await getDevelopers();
 
         setDevelopers(Array.isArray(data) ? data : []);
       } catch (err) {

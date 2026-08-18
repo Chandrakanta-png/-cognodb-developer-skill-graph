@@ -31,18 +31,68 @@ def health(request):
 # DEVELOPERS
 # ============================================================
 
-@api_view(["GET"])
+@api_view(["GET", "POST"])
 def developers(request):
 
-    result, error = call(queries.list_developers)
+    # ========================================================
+    # GET - LIST DEVELOPERS
+    # ========================================================
 
-    if error:
-        return Response(
-            {"error": error},
-            status=503
+    if request.method == "GET":
+        result, error = call(queries.list_developers)
+
+        if error:
+            return Response(
+                {"error": error},
+                status=503
+            )
+
+        return Response(result)
+
+    # ========================================================
+    # POST - CREATE DEVELOPER
+    # ========================================================
+
+    if request.method == "POST":
+
+        developer_data = {
+            "id": request.data.get("id"),
+            "name": request.data.get("name"),
+            "email": request.data.get("email"),
+            "title": request.data.get("title"),
+            "location": request.data.get("location"),
+            "experience": request.data.get("experience"),
+            "bio": request.data.get("bio"),
+        }
+
+        # Validate required fields
+        if not developer_data["id"]:
+            return Response(
+                {"error": "Developer ID is required"},
+                status=400
+            )
+
+        if not developer_data["name"]:
+            return Response(
+                {"error": "Developer name is required"},
+                status=400
+            )
+
+        result, error = call(
+            queries.create_developer,
+            developer_data
         )
 
-    return Response(result)
+        if error:
+            return Response(
+                {"error": error},
+                status=503
+            )
+
+        return Response(
+            result,
+            status=201
+        )
 
 
 # ============================================================
